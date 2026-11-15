@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#071321">
+<title>ECO EYE — Earth Trend Detective</title>
+<link rel="preconnect" href="https://unpkg.com"><link rel="preconnect" href="https://earthdata.nasa.gov">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" onerror="this.onerror=null;this.href='https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css'">
+<style>
+:root{--bg:#071321;--panel:#0d1d2e;--panel2:#10263b;--line:#1c3850;--text:#e8f3ff;--muted:#91a9bf;--cyan:#5bd6e8;--blue:#69a9ff;--green:#5be0ad;--amber:#ffca72;--red:#ff7f87}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at 70% -10%,#143451 0,transparent 32%),var(--bg);color:var(--text);font:15px/1.5 Inter,system-ui,Segoe UI,Arial,sans-serif}
+button,input,select{font:inherit}button{cursor:pointer}.shell{max-width:1500px;margin:auto;padding:0 24px}.top{position:sticky;top:0;z-index:1000;background:#071321eF;border-bottom:1px solid var(--line);backdrop-filter:blur(16px)}.nav{height:72px;display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{display:flex;align-items:center;gap:12px;font-weight:850;letter-spacing:.12em}.logo{width:39px;height:39px;border-radius:13px;background:linear-gradient(135deg,#58d7e6,#497bff);display:grid;place-items:center;color:#061323;font-size:21px;box-shadow:0 0 25px #48cde544}.brand small{display:block;color:var(--muted);font-size:9px;letter-spacing:.18em;font-weight:600}.navlinks{display:flex;gap:22px}.navlinks a{color:var(--muted);text-decoration:none;font-size:13px}.navlinks a:hover{color:var(--cyan)}.pill{border:1px solid #24506a;color:var(--cyan);padding:7px 11px;border-radius:30px;font-size:11px;white-space:nowrap}
+.hero{padding:54px 0 28px;display:grid;grid-template-columns:1.35fr .65fr;gap:30px;align-items:center}.eyebrow{color:var(--cyan);font-size:11px;letter-spacing:.2em;font-weight:800}.hero h1{font-size:clamp(36px,5vw,66px);line-height:1.02;margin:14px 0 16px;letter-spacing:-.045em}.gradient{background:linear-gradient(90deg,#f2fbff,#63d6e8 55%,#7ba9ff);-webkit-background-clip:text;background-clip:text;color:transparent}.hero p{color:var(--muted);max-width:690px;font-size:16px}.hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:23px}.btn{border:1px solid var(--line);border-radius:11px;padding:10px 15px;background:#10283d;color:var(--text);font-weight:700}.btn.primary{background:linear-gradient(100deg,#5bd6e8,#6da7ff);color:#061321;border:0}.btn:hover{filter:brightness(1.12)}.orbit{height:235px;position:relative;display:grid;place-items:center}.earth{width:190px;height:190px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#9be8f3 0,#277ba0 24%,#103d69 54%,#07182d 75%);box-shadow:inset -22px -15px 38px #020b19,0 0 50px #37c9e555;position:relative;overflow:hidden}.earth:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(22deg,transparent 0 17px,#a2e7d822 18px 20px),radial-gradient(ellipse at 60% 45%,#74c99588 0 12%,transparent 13%),radial-gradient(ellipse at 35% 65%,#64b47a88 0 17%,transparent 18%);border-radius:50%}.ring{position:absolute;width:245px;height:90px;border:1px solid #5bd6e877;border-radius:50%;transform:rotate(-22deg)}.ring:after{content:"";position:absolute;width:8px;height:8px;background:var(--cyan);border-radius:50%;top:9px;left:35px;box-shadow:0 0 14px var(--cyan)}
+.section{margin:24px 0 34px}.section-head{display:flex;justify-content:space-between;align-items:end;gap:14px;margin-bottom:15px}.section h2{font-size:21px;margin:0;letter-spacing:-.02em}.sub{color:var(--muted);font-size:12px;margin-top:4px}.grid{display:grid;gap:14px}.kpis{grid-template-columns:repeat(4,1fr)}.card{background:linear-gradient(145deg,#10243a,#0b1a2b);border:1px solid var(--line);border-radius:17px;padding:17px;box-shadow:0 10px 30px #0002}.kpi-top{display:flex;justify-content:space-between;color:var(--muted);font-size:12px}.kpi-value{font-size:30px;font-weight:800;margin:9px 0 1px;letter-spacing:-.04em}.kpi-note{font-size:11px;color:var(--muted)}.dot{width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block;margin-right:6px;box-shadow:0 0 10px currentColor}.map-layout{grid-template-columns:minmax(0,1.7fr) minmax(260px,.7fr)}#map{height:475px;border-radius:13px;background:#0a1724;z-index:1}.map-card{padding:10px}.map-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:4px 4px 10px}.map-toolbar select,.map-toolbar input,.controls input,.controls select{background:#071827;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:9px;min-width:0}.map-toolbar input{flex:1;min-width:145px}.side-list{display:flex;flex-direction:column;gap:9px;max-height:470px;overflow:auto}.event{border:1px solid var(--line);background:#0a1a2b;border-radius:12px;padding:12px}.event strong{display:block;font-size:13px}.event small{color:var(--muted)}.tag{display:inline-block;border:1px solid #31516a;border-radius:30px;padding:2px 7px;color:#9fd8ed;font-size:10px;margin-top:7px}.two{grid-template-columns:1fr 1fr}.three{grid-template-columns:repeat(3,1fr)}.controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.controls label{font-size:11px;color:var(--muted)}.controls input,.controls select{display:block;margin-top:4px}.chartbox{height:245px;position:relative}.chartbox canvas{width:100%;height:100%}.compare{display:grid;grid-template-columns:1fr 1fr;gap:12px}.compare .visual{min-height:150px;border-radius:12px;background:linear-gradient(135deg,#163d52,#0c2034);display:grid;place-items:center;text-align:center;padding:20px;color:#c8eaff}.insight{border-left:3px solid var(--cyan);padding:11px 13px;background:#0a1c2c;border-radius:0 10px 10px 0;margin:8px 0}.insight.warn{border-color:var(--amber)}.insight.danger{border-color:var(--red)}.insight strong{font-size:13px}.insight p{color:var(--muted);font-size:12px;margin:4px 0 0}.tablewrap{overflow:auto}table{border-collapse:collapse;width:100%;font-size:12px}th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line)}th{color:var(--muted);font-weight:600}.footer{padding:30px 0 45px;border-top:1px solid var(--line);color:var(--muted);font-size:12px}.status{font-size:11px;color:var(--muted)}.status b{color:var(--green)}.notice{padding:12px;border:1px solid #66502a;background:#2b2418;color:#ffe0a7;border-radius:12px;font-size:12px;margin-top:12px}.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#10263b;color:#e8f3ff}.leaflet-popup-content{font-size:12px}.leaflet-control-attribution{font-size:9px!important}
+.satellite-tools{align-items:end;background:#091a2a;border:1px solid var(--line);padding:9px;border-radius:12px}
+.satellite-tools label{display:flex;flex-direction:column;gap:4px;color:var(--muted);font-size:10px}
+.satellite-tools input[type=date],.satellite-tools select{background:#071827;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:7px}
+.satellite-tools input[type=range]{width:105px;accent-color:#5bd6e8}
+.region-picks{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin:0 4px 10px}
+.region-btn{font-size:11px;padding:7px 9px}
+.topic-card{display:flex;flex-direction:column;align-items:flex-start;gap:7px}
+.topic-card .btn{margin-top:auto;font-size:11px;padding:8px 10px}
+
+
+/* Reliable place finder + paired region comparison */
+#placeStatus{min-width:130px;max-width:240px}
+#placeSearch{min-width:210px}
+.compare-controls{display:flex;flex-wrap:wrap;gap:12px;align-items:end;margin-top:14px}
+.compare-controls label{display:flex;flex-direction:column;gap:6px;font-size:11px;color:var(--muted)}
+.compare-controls select{min-width:145px;background:#071827;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:9px}
+.preset-row{display:flex;flex-wrap:wrap;gap:8px}
+.preset-pair{font-size:11px}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+.compare-panel{background:#081827;border:1px solid #24445f;border-radius:13px;padding:14px;min-width:0}
+.compare-title{display:flex;justify-content:space-between;gap:8px;color:#b6d5e9;font-size:12px;flex-wrap:wrap}
+.compare-title b{color:#5bd6e8;letter-spacing:.12em}
+.compare-stat{font-size:28px;font-weight:850;margin:18px 0 3px;color:#e4f7ff;font-variant-numeric:tabular-nums}
+.compare-panel canvas{width:100%;height:180px;display:block;margin-top:12px}
+.detective-clue{margin-top:15px;border-left:3px solid #e4b84c;background:#101e2b;padding:13px 16px;border-radius:8px;color:#c4d2df;font-size:13px}
+.detective-clue p{margin:8px 0 0;line-height:1.55}
+@media(max-width:760px){.compare-grid{grid-template-columns:1fr}#placeSearch{min-width:160px;flex:1}}
+
+/* Deep-space observatory skin and lunar widgets */
+body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;opacity:.34;background-image:radial-gradient(1px 1px at 8% 18%,#d9f6ff 99%,transparent),radial-gradient(1px 1px at 76% 13%,#fff 99%,transparent),radial-gradient(2px 2px at 42% 72%,#8acbff 99%,transparent),radial-gradient(1px 1px at 91% 64%,#fff 99%,transparent),radial-gradient(1px 1px at 22% 88%,#b7dcff 99%,transparent);background-size:280px 260px}
+.lunar-grid{grid-template-columns:1.15fr .85fr 1fr}
+.lunar-section .card{min-height:265px;position:relative;overflow:hidden}
+.moon-card{display:flex;align-items:center;justify-content:space-around;gap:12px;background:radial-gradient(circle at 30% 45%,#243c63,#101d38 55%,#081525)!important}
+.moon-stars{position:absolute;inset:0;opacity:.5;background-image:radial-gradient(1px 1px at 20% 20%,white 99%,transparent),radial-gradient(1px 1px at 70% 25%,#b8e5ff 99%,transparent),radial-gradient(2px 2px at 80% 80%,white 99%,transparent),radial-gradient(1px 1px at 35% 75%,white 99%,transparent)}
+.moon-orbit{width:150px;height:150px;border:1px solid #8ab8e655;border-radius:50%;display:grid;place-items:center;box-shadow:0 0 35px #68bfff22;position:relative;flex:none}
+.moon-orbit:after{content:"";position:absolute;width:7px;height:7px;border-radius:50%;background:#8fe7ff;top:10px;right:25px;box-shadow:0 0 12px #8fe7ff}
+.moon-globe{width:105px;height:105px;border-radius:50%;background:radial-gradient(circle at 32% 30%,#fff8df,#c8c5b8 45%,#737b8b 78%,#252f43);box-shadow:inset -17px -8px 24px #0a1224,0 0 26px #d9e6ff44;position:relative;overflow:hidden}
+.moon-globe:after{content:"";position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 25% 60%,#737b8b66 0 7%,transparent 8%),radial-gradient(circle at 62% 28%,#68708055 0 10%,transparent 11%),radial-gradient(circle at 66% 72%,#59627355 0 13%,transparent 14%)}
+.moon-info{position:relative;z-index:1}.moon-phase{font-size:23px;font-weight:800;margin:8px 0 2px}.moon-illum{color:#a8dcff;font-size:12px;margin-top:10px}
+.space-widget{background:linear-gradient(145deg,#142b49,#091728)!important}
+.mission-time{font-size:34px;font-weight:850;letter-spacing:.08em;color:#b5e8ff;margin:14px 0 0;font-variant-numeric:tabular-nums}
+.widget-line{height:1px;background:linear-gradient(90deg,#69c9ff,transparent);margin:18px 0 10px}
+.widget-pair,.watch-item{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid #29415b;font-size:12px;color:#a9bfd4}
+.widget-pair b{color:#e7f6ff}.climate-quick h3{font-size:17px}.mini-link{background:#142e48;border:1px solid #315779;color:#9fe4ff;border-radius:8px;padding:4px 9px;font-size:10px}
+.mini-link:hover{background:#1b4261}
+@media(max-width:950px){.lunar-grid{grid-template-columns:1fr 1fr}.climate-quick{grid-column:1/-1}}
+@media(max-width:600px){.lunar-grid{grid-template-columns:1fr}.climate-quick{grid-column:auto}.moon-card{justify-content:flex-start;padding-left:18px}.moon-orbit{width:125px;height:125px}.moon-globe{width:88px;height:88px}}
+
+@media(max-width:850px){.hero{grid-template-columns:1fr}.orbit{display:none}.kpis{grid-template-columns:repeat(2,1fr)}.map-layout,.two{grid-template-columns:1fr}.navlinks{display:none}.side-list{max-height:300px}.shell{padding:0 14px}.hero{padding-top:38px}.three{grid-template-columns:1fr}}
+@media(max-width:480px){.kpis{grid-template-columns:1fr 1fr}.kpi-value{font-size:24px}.compare{grid-template-columns:1fr}.brand{font-size:13px}}
+</style>
+</head>
+<body>
+<header class="top"><div class="shell nav">
+ <div class="brand"><div class="logo">◎</div><div>ECO EYE<small>EARTH SYSTEM TREND DETECTIVE</small></div></div>
+ <nav class="navlinks"><a href="#monitor">Monitor</a><a href="#trends">Climate Lab</a><a href="#compare">Compare Regions</a><a href="#lunar">Moon Watch</a><a href="#detective">AI Detective</a><a href="#events">Events</a><a href="#about">About</a></nav>
+ <span class="pill">● EARTH OBSERVATORY</span>
+</div></header>
+<main class="shell">
+<section class="hero">
+ <div><div class="eyebrow">NASA SPACE APPS • EARTH INTELLIGENCE</div><h1>Read the signals.<br><span class="gradient">Understand Earth.</span></h1>
+ <p>An Earth-system investigation dashboard that brings satellite imagery, natural-event reports and climate indicators together — so anyone can explore what is changing, where, and why it matters.</p>
+ <div class="hero-actions"><a class="btn primary" href="#monitor" style="text-decoration:none">Explore live Earth ↗</a><button class="btn" id="refreshBtn">↻ Refresh data</button></div>
+ <div class="status" style="margin-top:14px">Data status: <b id="globalStatus">Connecting to NASA sources…</b> <span id="updatedAt"></span></div>
+ </div>
+ <div class="orbit"><div class="ring"></div><div class="earth"></div></div>
+</section>
+<section class="section" id="monitor">
+ <div class="section-head"><div><h2>Earth at a glance</h2><div class="sub">Live counts are fetched from NASA EONET when available.</div></div><span class="pill">GLOBAL OVERVIEW · SEARCH WORLDWIDE</span></div>
+ <div class="grid kpis">
+  <div class="card"><div class="kpi-top">Open natural events <span>◉</span></div><div class="kpi-value" id="kEvents">—</div><div class="kpi-note">NASA EONET event records</div></div>
+  <div class="card"><div class="kpi-top">Fire observations <span>♨</span></div><div class="kpi-value" id="kFires">External</div><div class="kpi-note">Open NASA FIRMS viewer</div></div>
+  <div class="card"><div class="kpi-top">Selected region <span>⌖</span></div><div class="kpi-value" id="kRegion" style="font-size:21px">Global</div><div class="kpi-note">Choose a study area below</div></div>
+  <div class="card"><div class="kpi-top">Data connection <span>⌁</span></div><div class="kpi-value" id="kConnection" style="font-size:21px">Checking</div><div class="kpi-note">NASA open data services</div></div>
+ </div>
+</section>
+<section class="section">
+ <div class="section-head"><div><h2>Global event intelligence</h2><div class="sub">Explore reported natural events on a world map. Select a marker for details.</div></div><span class="pill">NASA EONET</span></div>
+ <div class="grid map-layout">
+  <div class="card map-card"><div class="map-toolbar">
+   <select id="eventFilter"><option value="all">All event types</option><option value="Wildfires">Wildfires</option><option value="Severe Storms">Severe storms</option><option value="Floods">Floods</option><option value="Volcanoes">Volcanoes</option><option value="Drought">Drought</option><option value="Sea and Lake Ice">Sea & lake ice</option></select>
+   <input id="placeSearch" placeholder="Search city, region or country" autocomplete="off"><button class="btn" id="searchPlace">Find place</button><span class="status" id="placeStatus" role="status">Search worldwide places</span>
+  </div>
+  <div class="map-toolbar satellite-tools">
+   <label class="status">Satellite layer <select id="satLayer"><option value="VIIRS_SNPP_CorrectedReflectance_TrueColor">VIIRS true colour (recent)</option><option value="MODIS_Terra_CorrectedReflectance_TrueColor">MODIS true colour</option><option value="MODIS_Terra_NDVI_8Day">Vegetation index (NDVI)</option><option value="MODIS_Terra_Land_Surface_Temp_Day">Land surface temperature</option><option value="MODIS_Terra_Thermal_Anomalies_All">Thermal anomalies / fire</option></select></label>
+   <label class="status">Imagery date <input id="satDate" type="date"></label>
+   <label class="status">Opacity <input id="satOpacity" type="range" min="15" max="100" value="75"></label>
+   <button class="btn" id="applySatellite">Apply imagery</button>
+  </div>
+  <div class="region-picks"><span class="status">Quick explore:</span><button class="btn region-btn" data-lat="20" data-lon="0" data-zoom="2">🌐 World</button><button class="btn region-btn" data-lat="20.59" data-lon="78.96" data-zoom="4">Asia</button><button class="btn region-btn" data-lat="9.1" data-lon="8.7" data-zoom="3">Africa</button><button class="btn region-btn" data-lat=" -2" data-lon="-60" data-zoom="4">Amazon</button><button class="btn region-btn" data-lat="37" data-lon="-96" data-zoom="3">North America</button><button class="btn region-btn" data-lat="-25" data-lon="135" data-zoom="4">Australia</button><button class="btn region-btn" data-lat=" -78" data-lon="0" data-zoom="3">Antarctica</button></div>
+  <div id="map"></div><div class="status" style="padding:9px 4px 1px">NASA GIBS satellite imagery overlay + Esri/OpenStreetMap labels. Click anywhere on the map to set the study coordinates below.</div></div>
+  <div class="card"><div class="section-head"><div><h2 style="font-size:16px">Latest event feed</h2><div class="sub">Open event reports</div></div><span class="tag" id="eventCount">Loading</span></div><div class="side-list" id="eventList"><div class="status">Loading NASA event feed…</div></div></div>
+ </div>
+ <div class="notice">Important: event feeds are observations and reports, not a complete measure of every hazard. Some NASA layers update with a delay. This dashboard does not issue official emergency warnings.</div>
+</section>
+<section class="section lunar-section" id="lunar">
+ <div class="section-head"><div><h2>🌙 Lunar & orbital observatory</h2><div class="sub">A space-station inspired widget for lunar phase, illumination and Earth–Moon context.</div></div><span class="pill">MOON WATCH · LIVE CLOCK</span></div>
+ <div class="grid lunar-grid">
+  <div class="card moon-card"><div class="moon-stars"></div><div class="moon-orbit"><div class="moon-globe" id="moonDisc"></div></div><div class="moon-info"><div class="eyebrow">CURRENT LUNAR PHASE</div><div class="moon-phase" id="moonPhase">Calculating…</div><div class="sub" id="moonDate">—</div><div class="moon-illum" id="moonIllum">Illumination —</div></div></div>
+  <div class="card space-widget"><div class="eyebrow">MISSION CLOCK</div><div class="mission-time" id="missionClock">--:--:--</div><div class="sub">UTC · Coordinated Universal Time</div><div class="widget-line"></div><div class="widget-pair"><span>Earth rotation</span><b>15° / hour</b></div><div class="widget-pair"><span>Moon orbital period</span><b>~27.3 days</b></div><div class="widget-pair"><span>Mean Earth–Moon distance</span><b>~384,400 km</b></div><div class="sub" style="margin-top:13px">Astronomy values are educational reference figures; this panel is not a spacecraft tracker.</div></div>
+  <div class="card climate-quick"><div class="eyebrow">CLIMATE WATCHLIST</div><h3 style="margin:8px 0">More signals to investigate</h3><div class="watch-item"><span>🌡️ Heat & temperature</span><button class="mini-link" data-param="T2M">Track ↗</button></div><div class="watch-item"><span>🌧️ Rainfall & water</span><button class="mini-link" data-param="PRECTOTCORR">Track ↗</button></div><div class="watch-item"><span>🌱 Soil moisture</span><button class="mini-link" data-param="GWETROOT">Track ↗</button></div><div class="watch-item"><span>💨 Wind & atmosphere</span><button class="mini-link" data-param="WS2M">Track ↗</button></div><div class="watch-item"><span>☀️ Solar energy</span><button class="mini-link" data-param="ALLSKY_SFC_SW_DWN">Track ↗</button></div><div class="watch-item"><span>💧 Humidity</span><button class="mini-link" data-param="RH2M">Track ↗</button></div></div>
+ </div>
+ <div class="notice">Moon phase and illumination are calculated locally from the current date using an approximate lunar-cycle model. They are not a live NASA spacecraft feed.</div>
+</section>
+<section class="section" id="trends">
+ <div class="section-head"><div><h2>Regional trend laboratory</h2><div class="sub">Request historical environmental indicators for a chosen location using NASA POWER.</div></div><span class="pill">NASA POWER API</span></div>
+ <div class="card">
+  <div class="controls">
+   <label>Study location<input id="locName" value="Pune, India" style="width:190px"></label>
+   <label>Latitude<input id="lat" type="number" step=".0001" value="18.5204" style="width:105px"></label>
+   <label>Longitude<input id="lon" type="number" step=".0001" value="73.8567" style="width:105px"></label>
+   <label>Earth indicator<select id="parameter">
+    <optgroup label="Temperature & climate"><option value="T2M">Air temperature (°C)</option><option value="T2M_MAX">Maximum temperature (°C)</option><option value="T2M_MIN">Minimum temperature (°C)</option><option value="T2MDEW">Dew-point temperature (°C)</option><option value="TS">Surface temperature (°C)</option></optgroup>
+    <optgroup label="Water & rainfall"><option value="PRECTOTCORR">Precipitation (mm/day)</option><option value="RH2M">Relative humidity (%)</option><option value="QV2M">Specific humidity (g/kg)</option><option value="GWETROOT">Root-zone soil wetness (fraction)</option><option value="GWETTOP">Top-layer soil wetness (fraction)</option></optgroup>
+    <optgroup label="Atmosphere & energy"><option value="WS2M">Wind speed (m/s)</option><option value="PS">Surface pressure (kPa)</option><option value="ALLSKY_SFC_SW_DWN">Solar radiation (kWh/m²/day)</option></optgroup>
+   </select></label>
+   <label>History window<select id="historyYears"><option value="1">1 year</option><option value="3">3 years</option><option value="5" selected>5 years</option><option value="10">10 years</option></select></label>
+   <button class="btn primary" id="loadTrend">Analyse region</button>
+  </div>
+  <div class="sub" id="trendStatus" style="margin:12px 0">Choose a location and analyse to load historical data.</div>
+  <div class="chartbox"><canvas id="trendChart"></canvas></div>
+  <div class="sub" id="chartCaption">Historical daily values from NASA POWER. Recent data availability varies by parameter and location.</div>
+ </div>
+</section>
+<section class="section" id="compare">
+ <div class="section-head"><div><h2>🌍 Two-place trend detective</h2><div class="sub">Compare two regions with the same NASA POWER indicator, just like a side-by-side Earth-system investigation.</div></div><span class="pill">REGION A vs REGION B</span></div>
+ <div class="card">
+  <div class="preset-row"><button class="btn preset-pair" data-pair="arctic">Arctic warming vs Central Eurasia</button><button class="btn preset-pair" data-pair="amazon">Amazon vs South Asian monsoon</button><button class="btn preset-pair" data-pair="antarctic">Antarctic vs Tropical Pacific</button></div>
+  <div class="compare-controls">
+   <label>Region A<select id="compareA"><option value="arctic">Arctic Circle</option><option value="amazon">Amazon Rainforest</option><option value="antarctic">Antarctic interior</option><option value="monsoon">South Asian Monsoon</option><option value="eurasia">Central Eurasia</option><option value="pacific">Tropical Pacific</option></select></label>
+   <label>Region B<select id="compareB"><option value="eurasia">Central Eurasia</option><option value="monsoon">South Asian Monsoon</option><option value="pacific">Tropical Pacific</option><option value="arctic">Arctic Circle</option><option value="amazon">Amazon Rainforest</option><option value="antarctic">Antarctic interior</option></select></label>
+   <label>Indicator<select id="compareParam"><option value="T2M">Air temperature (°C)</option><option value="PRECTOTCORR">Precipitation (mm/day)</option><option value="RH2M">Relative humidity (%)</option><option value="WS2M">Wind speed (m/s)</option><option value="T2M_MAX">Maximum temperature (°C)</option><option value="T2M_MIN">Minimum temperature (°C)</option></select></label>
+   <label>Years<select id="compareYears"><option value="10">10 years</option><option value="15" selected>15 years</option><option value="20">20 years</option></select></label>
+   <button class="btn primary" id="runCompare">Compare regions</button>
+  </div>
+  <div id="compareStatus" class="sub" style="margin:12px 0">Choose a pair or customise both regions, then compare.</div>
+  <div class="compare-grid"><div class="compare-panel"><div class="compare-title"><b>REGION A</b><span id="compareNameA">Arctic Circle</span></div><div class="compare-stat" id="compareSlopeA">—</div><div class="sub" id="compareDetailA">Trend per decade</div><canvas id="compareChartA" height="180"></canvas></div><div class="compare-panel"><div class="compare-title"><b>REGION B</b><span id="compareNameB">Central Eurasia</span></div><div class="compare-stat" id="compareSlopeB">—</div><div class="sub" id="compareDetailB">Trend per decade</div><canvas id="compareChartB" height="180"></canvas></div></div>
+  <div class="detective-clue" id="compareClue"><b>Detective clue</b><p>Compare both regions using the same variable and time window. A difference in trend does not by itself prove that one region causes changes in the other.</p></div>
+ </div>
+</section>
+<section class="section" id="detective">
+ <div class="section-head"><div><h2>AI Earth detective</h2><div class="sub">Turn measurements into understandable clues. Findings are rule-based interpretations, not an official forecast.</div></div><span class="pill">PATTERN ANALYSIS</span></div>
+ <div class="grid two">
+  <div class="card"><h3 style="margin:0 0 6px">Investigation report</h3><div class="sub">Generated from the most recent regional data loaded above.</div><div id="insights"><div class="insight"><strong>Waiting for evidence</strong><p>Load NASA POWER data to generate a regional analysis.</p></div></div><button class="btn" id="downloadReport">Download investigation report</button></div>
+  <div class="card"><h3 style="margin:0 0 6px">Past vs recent comparison</h3><div class="sub">Compare average values across the first and last portions of the loaded dataset.</div>
+   <div class="compare" style="margin-top:14px"><div class="visual"><div><div class="sub">EARLIER PERIOD</div><div id="oldAvg" style="font-size:27px;font-weight:800">—</div><small id="oldDate">No data</small></div></div><div class="visual"><div><div class="sub">RECENT PERIOD</div><div id="newAvg" style="font-size:27px;font-weight:800">—</div><small id="newDate">No data</small></div></div></div>
+   <div id="comparisonText" class="sub" style="margin-top:13px">A comparison will appear after analysis.</div>
+  </div>
+ </div>
+</section>
+<section class="section" id="topics">
+ <div class="section-head"><div><h2>Earth systems you can investigate</h2><div class="sub">Choose a topic to jump to the most relevant observation layer or dataset.</div></div><span class="pill">MULTI-SYSTEM TRACKING</span></div>
+ <div class="grid three">
+  <div class="card topic-card" data-layer="MODIS_Terra_NDVI_8Day"><div style="font-size:24px">🌳</div><b>Land & vegetation</b><div class="sub">Vegetation greenness, seasonal change and possible land-cover stress.</div><button class="btn topic-go">View vegetation layer</button></div>
+  <div class="card topic-card" data-layer="MODIS_Terra_Thermal_Anomalies_All"><div style="font-size:24px">🔥</div><b>Wildfires & heat</b><div class="sub">Thermal anomaly observations and reported fire-related events.</div><button class="btn topic-go">View thermal layer</button></div>
+  <div class="card topic-card" data-layer="MODIS_Terra_Land_Surface_Temp_Day"><div style="font-size:24px">🌡️</div><b>Surface temperature</b><div class="sub">Land surface temperature imagery and regional air-temperature records.</div><button class="btn topic-go">View temperature layer</button></div>
+  <div class="card topic-card" data-layer="VIIRS_SNPP_CorrectedReflectance_TrueColor"><div style="font-size:24px">🌊</div><b>Oceans & water</b><div class="sub">Inspect coastlines, water extent and visible changes in satellite imagery.</div><button class="btn topic-go">View satellite image</button></div>
+  <div class="card topic-card" data-layer="MODIS_Terra_CorrectedReflectance_TrueColor"><div style="font-size:24px">☁️</div><b>Atmosphere & storms</b><div class="sub">Cloud systems and storm context using satellite imagery and event reports.</div><button class="btn topic-go">View cloud imagery</button></div>
+  <div class="card topic-card"><div style="font-size:24px">🌧️</div><b>Rainfall & drought clues</b><div class="sub">Use NASA POWER precipitation and humidity time series for a chosen location.</div><button class="btn" onclick="document.querySelector('#trends').scrollIntoView({behavior:'smooth'})">Analyse rainfall</button></div>
+ </div>
+ <div class="notice">Not every Earth system has a single globally complete live measurement. Some layers are satellite snapshots or composite products, and some indicators are updated daily or less frequently. Use the date shown for each product.</div>
+</section>
+<section class="section" id="events">
+ <div class="section-head"><div><h2>Earth investigation tools</h2><div class="sub">Open authoritative NASA explorers for deeper inspection and validation.</div></div><span class="pill">RESEARCH DESK</span></div>
+ <div class="grid three">
+  <a class="card" href="https://worldview.earthdata.nasa.gov/" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><div style="font-size:25px">🛰️</div><h3>NASA Worldview</h3><div class="sub">Browse satellite imagery and compare dates across the globe.</div><span class="tag">Satellite imagery ↗</span></a>
+  <a class="card" href="https://firms.modaps.eosdis.nasa.gov/map/" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><div style="font-size:25px">🔥</div><h3>NASA FIRMS</h3><div class="sub">Explore active fire detections from satellite observations.</div><span class="tag">Fire monitoring ↗</span></a>
+  <a class="card" href="https://earthobservatory.nasa.gov/" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><div style="font-size:25px">🌎</div><h3>NASA Earth Observatory</h3><div class="sub">Read science stories explaining environmental changes.</div><span class="tag">Earth science ↗</span></a>
+  <a class="card" href="https://eonet.gsfc.nasa.gov/" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><div style="font-size:25px">🌪️</div><h3>NASA EONET</h3><div class="sub">Explore categorized natural events and event metadata.</div><span class="tag">Event tracking ↗</span></a>
+  <a class="card" href="https://power.larc.nasa.gov/" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><div style="font-size:25px">📈</div><h3>NASA POWER</h3><div class="sub">Access meteorological and solar data for regional analysis.</div><span class="tag">Climate indicators ↗</span></a>
+  <a class="card" href="https://www.earthdata.nasa.gov/" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><div style="font-size:25px">📚</div><h3>NASA Earthdata</h3><div class="sub">Discover datasets, documentation and scientific data tools.</div><span class="tag">Data catalogue ↗</span></a>
+ </div>
+</section>
+<section class="section" id="about">
+ <div class="card"><div class="eyebrow">OUR METHOD</div><h2 style="margin:8px 0">From satellite signal to environmental insight</h2>
+  <div class="grid three" style="margin-top:16px">
+   <div><b>01 · Observe</b><div class="sub">Collect NASA Earth-observation products and event reports.</div></div>
+   <div><b>02 · Compare</b><div class="sub">Examine locations, dates and indicator changes using transparent calculations.</div></div>
+   <div><b>03 · Explain</b><div class="sub">Translate patterns into evidence-based clues and useful next questions.</div></div>
+  </div>
+  <div class="notice">Science note: NASA POWER provides gridded/reanalysis and satellite-derived parameters, not necessarily ground-station measurements at the exact pin. A trend in one indicator alone does not prove its cause. Validate conclusions with additional datasets and local sources.</div>
+ </div>
+</section>
+<footer class="footer"><b style="color:#dcecff">ECO EYE</b> · NASA Space Apps Challenge concept prototype<br>Independent student project; not an official NASA product or emergency service. Data and services belong to their respective providers. <span id="footerTime"></span></footer>
+</main>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" onerror="this.onerror=null;this.src='https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js'"></script>
+<script>
+const $=id=>document.getElementById(id);
+let events=[], trendRows=[], trendMeta=null, map, markers, markerLayer;
+function fmt(n,d=1){return Number(n).toFixed(d)}
+function setStatus(s){$('globalStatus').textContent=s}
+let baseLayer, labelLayer, satelliteLayer, layerControl;
+const gibsLayers={
+ VIIRS_SNPP_CorrectedReflectance_TrueColor:{name:'VIIRS true colour',ext:'jpg',max:9},
+ MODIS_Terra_CorrectedReflectance_TrueColor:{name:'MODIS true colour',ext:'jpg',max:9},
+ MODIS_Terra_NDVI_8Day:{name:'Vegetation NDVI',ext:'png',max:9},
+ MODIS_Terra_Land_Surface_Temp_Day:{name:'Land surface temperature',ext:'png',max:9},
+ MODIS_Terra_Thermal_Anomalies_All:{name:'Thermal anomalies',ext:'png',max:9}
+};
+function recentGibsDate(){const d=new Date();d.setUTCDate(d.getUTCDate()-3);return d.toISOString().slice(0,10)}
+function buildSatelliteLayer(){
+ const layerName=$('satLayer').value,meta=gibsLayers[layerName]||gibsLayers.VIIRS_SNPP_CorrectedReflectance_TrueColor;
+ const date=$('satDate').value||recentGibsDate();
+ const opacity=Number($('satOpacity').value)/100;
+ return L.tileLayer(`https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/${layerName}/default/${date}/GoogleMapsCompatible_Level9/{z}/{y}/{x}.${meta.ext}`,{maxZoom:meta.max,maxNativeZoom:meta.max,opacity,pane:'satPane',attribution:'NASA GIBS · '+meta.name});
+}
+function applySatelliteLayer(){
+ if(satelliteLayer)map.removeLayer(satelliteLayer);
+ satelliteLayer=buildSatelliteLayer();satelliteLayer.addTo(map);
+ $('satLayer').title='NASA GIBS: '+(gibsLayers[$('satLayer').value]?.name||'Satellite imagery');
+ $('satDate').title='Requested NASA imagery date: '+($('satDate').value||recentGibsDate());
+}
+function initMap(){
+ map=L.map('map',{worldCopyJump:true}).setView([20,0],2);
+ map.createPane('satPane').style.zIndex=250;
+ map.createPane('labelPane').style.zIndex=350;map.getPane('labelPane').style.pointerEvents='none';
+ baseLayer=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,maxNativeZoom:16,attribution:'Tiles © Esri — Esri, HERE, Garmin, © OpenStreetMap contributors'}).addTo(map);
+ labelLayer=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,maxNativeZoom:16,pane:'labelPane'}).addTo(map);
+ let baseErrors=0;
+ baseLayer.on('tileerror',()=>{ if(++baseErrors===6){ map.removeLayer(baseLayer); baseLayer=L.tileLayer('https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpeg',{maxZoom:19,maxNativeZoom:8,attribution:'NASA GIBS · Blue Marble'}).addTo(map); baseLayer.bringToBack(); } });
+ const d=new Date();d.setUTCDate(d.getUTCDate()-3);$('satDate').value=d.toISOString().slice(0,10);
+ applySatelliteLayer();
+ L.control.layers({'Base map':baseLayer},{'NASA satellite imagery':satelliteLayer,'Place labels':labelLayer},{collapsed:true}).addTo(map);
+ markerLayer=L.layerGroup().addTo(map);
+ map.on('click',e=>{ $('lat').value=e.latlng.lat.toFixed(4);$('lon').value=e.latlng.lng.toFixed(4);$('locName').value='Map selection';$('kRegion').textContent='Map selection';if(window.placeMarker)map.removeLayer(window.placeMarker);window.placeMarker=L.marker(e.latlng).addTo(map).bindPopup('Study point · '+e.latlng.lat.toFixed(4)+', '+e.latlng.lng.toFixed(4)).openPopup();$('trendStatus').textContent='Map coordinates selected. Choose an indicator and click Analyse region.';});
+}
+function eventCategory(e){return (e.categories||[]).map(c=>c.title).join(', ')||'Natural event'}
+function eventCoords(e){let g=e.geometry?.[e.geometry.length-1];if(!g)return null;let c=g.coordinates;if(g.type==='Point')return [c[1],c[0]];if(g.type==='Polygon')return [c[0][0][1],c[0][0][0]];return null}
+async function loadEvents(){
+ $('eventList').innerHTML='<div class="status">Fetching NASA EONET events…</div>';
+ try{
+  const r=await fetch('https://eonet.gsfc.nasa.gov/api/v3/events?status=open&limit=100'); if(!r.ok)throw Error('EONET HTTP '+r.status);
+  const j=await r.json(); events=j.events||[]; populateEventFilters(); $('kEvents').textContent=events.length.toLocaleString(); $('kConnection').textContent='Online'; $('eventCount').textContent=events.length+' events'; setStatus('NASA event feed connected');
+  renderEvents(); $('updatedAt').textContent=' · Updated '+new Date().toLocaleTimeString();
+ }catch(err){$('eventList').innerHTML='<div class="status">NASA EONET could not be reached. Check internet access and retry.</div>'; $('kEvents').textContent='Unavailable';$('kConnection').textContent='Offline';setStatus('Some NASA sources unavailable');console.warn(err)}
+}
+function populateEventFilters(){
+ const select=$('eventFilter'),chosen=select.value;
+ const cats=[...new Set(events.flatMap(e=>(e.categories||[]).map(c=>c.title)))].sort();
+ select.innerHTML='<option value="all">All event types</option>'+cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
+ if(cats.includes(chosen))select.value=chosen;
+}
+function renderEvents(){
+ markerLayer.clearLayers(); let f=$('eventFilter').value;
+ let filtered=events.filter(e=>f==='all'||(e.categories||[]).some(c=>c.title===f));
+ filtered.forEach(e=>{let p=eventCoords(e);if(!p)return;let m=L.circleMarker(p,{radius:6,color:'#58d5e8',weight:1,fillColor:'#3d9bd4',fillOpacity:.85}).bindPopup(`<b>${esc(e.title)}</b><br>${esc(eventCategory(e))}<br>${esc(e.geometry?.at(-1)?.date||'Date not supplied')}<br><a href="${esc(e.sources?.[0]?.url||'https://eonet.gsfc.nasa.gov/')}" target="_blank" rel="noopener">Source details ↗</a>`);markerLayer.addLayer(m)});
+ $('eventList').innerHTML=filtered.slice(0,35).map(e=>`<div class="event"><strong>${esc(e.title)}</strong><small>${esc(eventCategory(e))} · ${esc((e.geometry?.at(-1)?.date||'Date unavailable').slice(0,10))}</small><br><span class="tag">${(e.geometry||[]).length} observation(s)</span></div>`).join('')||'<div class="status">No events match this filter in the current feed.</div>';
+ $('eventCount').textContent=filtered.length+' shown';
+}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+$('eventFilter').addEventListener('change',renderEvents);
+
+async function findPlace(){
+ const input=$('placeSearch'),q=input.value.trim(),status=$('placeStatus');
+ if(!q){status.textContent='Enter a city, region or country name.';input.focus();return}
+ status.textContent='Searching worldwide place database…';
+ $('searchPlace').disabled=true;
+ try{
+  let places=[];
+  const url='https://geocoding-api.open-meteo.com/v1/search?name='+encodeURIComponent(q)+'&count=8&language=en&format=json';
+  const response=await fetch(url,{headers:{'Accept':'application/json'}});
+  if(!response.ok)throw Error('Geocoder returned HTTP '+response.status);
+  const data=await response.json();
+  places=(data.results||[]).map(x=>({name:[x.name,x.admin1,x.country].filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i).join(', '),lat:Number(x.latitude),lon:Number(x.longitude),label:[x.name,x.admin1,x.country].filter(Boolean).join(', ')}));
+  if(!places.length){
+   const alt=await fetch('https://photon.komoot.io/api/?limit=6&q='+encodeURIComponent(q));
+   if(alt.ok){const j=await alt.json();places=(j.features||[]).map(f=>{const p=f.properties||{},c=f.geometry?.coordinates||[];return {name:[p.name,p.city,p.state,p.country].filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i).join(', '),lat:Number(c[1]),lon:Number(c[0]),label:[p.name,p.city,p.state,p.country].filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i).join(', ')}}).filter(x=>Number.isFinite(x.lat)&&Number.isFinite(x.lon))}
+  }
+  places=places.filter(x=>Number.isFinite(x.lat)&&Number.isFinite(x.lon)&&Math.abs(x.lat)<=90&&Math.abs(x.lon)<=180);
+  if(!places.length){status.textContent='No match. Try a larger town, city or country.';return}
+  if(places.length===1){selectPlace(places[0]);status.textContent='Located: '+places[0].label;return}
+  status.textContent='Choose a match below:';
+  const menu=document.createElement('div');menu.className='place-results';
+  menu.style.cssText='position:absolute;z-index:1200;right:14px;top:100%;min-width:260px;max-width:min(92vw,420px);max-height:260px;overflow:auto;background:#0b1d2d;border:1px solid #3c6786;border-radius:10px;box-shadow:0 12px 35px #0009;padding:6px';
+  places.forEach(place=>{const b=document.createElement('button');b.type='button';b.textContent=place.label;b.style.cssText='display:block;width:100%;text-align:left;padding:10px;background:transparent;color:#d9efff;border:0;border-bottom:1px solid #28435a;cursor:pointer';b.onclick=()=>{selectPlace(place);status.textContent='Located: '+place.label;menu.remove()};menu.appendChild(b)});
+  const old=document.querySelector('.place-results');if(old)old.remove();
+  const host=input.parentElement;host.style.position='relative';host.appendChild(menu);
+ }catch(err){status.textContent='Place search failed: '+(err.message||'network error')+'. Check internet or use map click / coordinates.'}
+ finally{$('searchPlace').disabled=false}
+}
+function selectPlace(place){
+ $('locName').value=place.name||place.label;
+ $('lat').value=Number(place.lat).toFixed(4);$('lon').value=Number(place.lon).toFixed(4);
+ $('kRegion').textContent=(place.name||place.label).slice(0,18);
+ if(map){map.setView([place.lat,place.lon],7);if(window.placeMarker)map.removeLayer(window.placeMarker);window.placeMarker=L.marker([place.lat,place.lon]).addTo(map).bindPopup(esc(place.label||place.name)).openPopup()}
+ $('trendStatus').textContent='Location set to '+(place.label||place.name)+'. Select an indicator and choose Analyse region.';
+}
+$('searchPlace').onclick=findPlace;
+$('placeSearch').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();findPlace()}});
+$('placeSearch').addEventListener('input',()=>{const m=document.querySelector('.place-results');if(m)m.remove()});
+$('refreshBtn').onclick=()=>{loadEvents();if(trendRows.length)loadTrend()};
+function drawChart(rows,param){
+ const c=$('trendChart'),ctx=c.getContext('2d'),w=c.clientWidth,h=c.clientHeight,dpr=window.devicePixelRatio||1;c.width=w*dpr;c.height=h*dpr;ctx.scale(dpr,dpr);ctx.clearRect(0,0,w,h);
+ const vals=rows.map(x=>x.value),min=Math.min(...vals),max=Math.max(...vals),pad={l:48,r:14,t:18,b:32},cw=w-pad.l-pad.r,ch=h-pad.t-pad.b;
+ ctx.strokeStyle='#1e3b53';ctx.fillStyle='#91a9bf';ctx.font='10px system-ui';ctx.lineWidth=1;
+ for(let i=0;i<5;i++){let y=pad.t+ch*i/4;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke();let v=max-(max-min)*i/4;ctx.fillText(fmt(v,1),4,y+3)}
+ const x=i=>pad.l+cw*i/Math.max(1,vals.length-1),y=v=>pad.t+ch-(v-min)/(max-min||1)*ch;
+ ctx.beginPath();vals.forEach((v,i)=>i?ctx.lineTo(x(i),y(v)):ctx.moveTo(x(i),y(v)));ctx.strokeStyle='#5bd6e8';ctx.lineWidth=2;ctx.stroke();
+ ctx.lineTo(x(vals.length-1),pad.t+ch);ctx.lineTo(x(0),pad.t+ch);ctx.closePath();ctx.fillStyle='rgba(91,214,232,.10)';ctx.fill();
+ ctx.fillStyle='#91a9bf';ctx.fillText(rows[0].date,pad.l,h-8);ctx.fillText(rows.at(-1).date,Math.max(pad.l,w-85),h-8);
+}
+async function loadTrend(){
+ const lat=Number($('lat').value),lon=Number($('lon').value),param=$('parameter').value;
+ if(!Number.isFinite(lat)||!Number.isFinite(lon)||Math.abs(lat)>90||Math.abs(lon)>180){alert('Enter valid latitude (-90 to 90) and longitude (-180 to 180).');return}
+ $('trendStatus').textContent='Requesting historical data from NASA POWER…';$('loadTrend').disabled=true;
+ const end=new Date();end.setDate(end.getDate()-5);const start=new Date(end);start.setFullYear(start.getFullYear()-Number($('historyYears').value));
+ const ymd=d=>d.toISOString().slice(0,10).replaceAll('-','');
+ const url=`https://power.larc.nasa.gov/api/temporal/daily/point?parameters=${param}&community=RE&longitude=${lon}&latitude=${lat}&start=${ymd(start)}&end=${ymd(end)}&format=JSON`;
+ try{
+  const res=await fetch(url);if(!res.ok)throw Error('NASA POWER HTTP '+res.status);const data=await res.json();const obj=data.properties.parameter[param];const rows=Object.entries(obj).filter(([k,v])=>Number.isFinite(v)&&v>-900).map(([k,v])=>({date:k.slice(0,4)+'-'+k.slice(4,6)+'-'+k.slice(6,8),value:v}));
+  if(rows.length<5)throw Error('Not enough valid observations returned for this request.');
+  trendRows=rows;trendMeta={location:$('locName').value,lat,lon,param,unit:data.parameters?.[param]?.units||unitFor(param),generated:new Date().toISOString()};
+  drawChart(rows,param);const n=Math.max(3,Math.floor(rows.length*.2)),old=rows.slice(0,n),recent=rows.slice(-n),avg=a=>a.reduce((s,x)=>s+x.value,0)/a.length,oa=avg(old),na=avg(recent),delta=na-oa,unit=unitFor(param);
+  $('oldAvg').textContent=fmt(oa,2)+' '+unit;$('newAvg').textContent=fmt(na,2)+' '+unit;$('oldDate').textContent=old[0].date+' to '+old.at(-1).date;$('newDate').textContent=recent[0].date+' to '+recent.at(-1).date;
+  $('comparisonText').textContent=`Recent-period average is ${Math.abs(delta).toFixed(2)} ${unit} ${delta>=0?'higher':'lower'} than the earlier-period average. This is a simple comparison, not proof of a long-term climate trend.`;
+  $('trendStatus').textContent=`Loaded ${rows.length} valid daily observations for ${trendMeta.location||'selected coordinates'}.`;
+  $('kRegion').textContent=(trendMeta.location||'Selected area').slice(0,15);
+  makeInsights(rows,trendMeta,oa,na,delta);
+ }catch(err){$('trendStatus').textContent='Could not load NASA POWER data: '+err.message+'. Check connection or try another location/date.';console.error(err)}
+ finally{$('loadTrend').disabled=false}
+}
+function unitFor(p){return ({T2M:'°C',T2M_MAX:'°C',T2M_MIN:'°C',T2MDEW:'°C',TS:'°C',PRECTOTCORR:'mm/day',RH2M:'%',QV2M:'g/kg',GWETROOT:'fraction',GWETTOP:'fraction',WS2M:'m/s',PS:'kPa',ALLSKY_SFC_SW_DWN:'kWh/m²/day'})[p]||''}
+function makeInsights(rows,meta,old,now,delta){
+ const unit=unitFor(meta.param),name=meta.location||'selected region',direction=delta>0?'increased':'decreased',pct=old!==0?Math.abs(delta/old*100):null;
+ let title,detail,level='';if(meta.param==='T2M'){title=`Temperature ${direction} in the recent comparison window`;detail=`The recent-period mean is ${Math.abs(delta).toFixed(2)} ${unit} ${delta>=0?'above':'below'} the earlier-period mean. Check seasonal timing and longer records before interpreting this as climate change.`;level=delta>1?'warn':''}
+ else if(meta.param==='PRECTOTCORR'){title=`Precipitation ${direction} in the recent comparison window`;detail=`The average daily precipitation changed by ${Math.abs(delta).toFixed(2)} ${unit}. Rainfall is highly seasonal; compare matching months across multiple years for stronger conclusions.`;level='warn'}
+ else if(meta.param==='RH2M'){title=`Relative humidity ${direction} in the recent comparison window`;detail=`The recent-period mean changed by ${Math.abs(delta).toFixed(2)} percentage points. Humidity varies with season, temperature and local weather.`}
+ else if(['T2M_MAX','T2M_MIN','T2MDEW','TS'].includes(meta.param)){title=`Temperature signal ${direction}`;detail=`The selected temperature indicator changed by ${Math.abs(delta).toFixed(2)} ${unit}. Compare matching seasons and several years before interpreting it as a climate trend.`}
+ else if(['GWETROOT','GWETTOP'].includes(meta.param)){title=`Soil wetness signal ${direction}`;detail=`The modelled soil-wetness fraction changed by ${Math.abs(delta).toFixed(3)}. Soil moisture responds to rainfall, evaporation, vegetation and soil properties.`}
+ else if(meta.param==='QV2M'){title=`Atmospheric moisture ${direction}`;detail=`Specific humidity changed by ${Math.abs(delta).toFixed(2)} ${unit}. Interpret alongside temperature, rainfall and circulation patterns.`}
+ else if(meta.param==='PS'){title=`Surface pressure ${direction}`;detail=`Surface pressure changed by ${Math.abs(delta).toFixed(2)} ${unit}. Pressure patterns are most useful when compared with wind and weather observations.`}
+ else{title=`Wind / energy signal ${direction}`;detail=`The selected indicator changed by ${Math.abs(delta).toFixed(2)} ${unit}. Use additional environmental variables to understand the pattern.`}
+ const min=Math.min(...rows.map(r=>r.value)),max=Math.max(...rows.map(r=>r.value)),avg=rows.reduce((s,r)=>s+r.value,0)/rows.length;
+ $('insights').innerHTML=`<div class="insight ${level}"><strong>🔎 ${esc(title)}</strong><p>${esc(detail)}</p></div><div class="insight"><strong>📍 Study area: ${esc(name)}</strong><p>Coordinates ${meta.lat.toFixed(3)}, ${meta.lon.toFixed(3)}. Parameter: ${esc(meta.param)}.</p></div><div class="insight"><strong>📊 Dataset summary</strong><p>${rows.length} valid daily observations · mean ${avg.toFixed(2)} ${unit} · observed range ${min.toFixed(2)} to ${max.toFixed(2)} ${unit}.</p></div><div class="insight warn"><strong>🧭 Detective's next step</strong><p>Compare the same months across several years and corroborate this signal with satellite imagery or another independent dataset before making a causal claim.</p></div>`;
+}
+
+function updateMoonWidget(){
+ const now=new Date(),synodic=29.530588853,knownNew=Date.UTC(2000,0,6,18,14);
+ const age=((now.getTime()-knownNew)/86400000%synodic+synodic)%synodic;
+ const illumination=(1-Math.cos(2*Math.PI*age/synodic))/2;
+ const phases=['New Moon','Waxing Crescent','First Quarter','Waxing Gibbous','Full Moon','Waning Gibbous','Last Quarter','Waning Crescent'];
+ const index=Math.round(age/synodic*8)%8;
+ $('moonPhase').textContent=phases[index];
+ $('moonIllum').textContent='Illumination · '+Math.round(illumination*100)+'%';
+ $('moonDate').textContent=now.toLocaleDateString(undefined,{weekday:'long',year:'numeric',month:'short',day:'numeric'});
+ const disc=$('moonDisc'),waxing=age<synodic/2;
+ const phaseFraction=age/synodic;
+ const shadow=illumination<.5?(waxing?'inset 24px 0 25px #111a2b':'inset -24px 0 25px #111a2b'):(waxing?'inset -18px 0 22px #111a2b':'inset 18px 0 22px #111a2b');
+ disc.style.boxShadow=shadow+', inset -17px -8px 24px #0a1224, 0 0 26px #d9e6ff44';
+}
+function updateMissionClock(){ $('missionClock').textContent=new Date().toISOString().slice(11,19); }
+updateMoonWidget();updateMissionClock();setInterval(updateMissionClock,1000);setInterval(updateMoonWidget,60000);
+document.querySelectorAll('.mini-link').forEach(b=>b.addEventListener('click',()=>{
+ $('parameter').value=b.dataset.param;
+ document.querySelector('#trends').scrollIntoView({behavior:'smooth'});
+ $('trendStatus').textContent='Indicator selected. Choose Analyse region to load the climate record.';
+}));
+
+$('loadTrend').onclick=loadTrend;
+$('parameter').onchange=()=>{if(trendRows.length)loadTrend()};
+$('applySatellite').onclick=applySatelliteLayer;
+$('satLayer').onchange=applySatelliteLayer;
+$('satOpacity').oninput=()=>{if(satelliteLayer)satelliteLayer.setOpacity(Number($('satOpacity').value)/100)};
+
+const detectiveRegions={
+ arctic:{name:'Arctic Circle',lat:70,lon:-40},
+ eurasia:{name:'Central Eurasia',lat:50,lon:70},
+ amazon:{name:'Amazon Rainforest',lat:-3,lon:-60},
+ monsoon:{name:'South Asian Monsoon',lat:20,lon:78},
+ antarctic:{name:'Antarctic interior',lat:-80,lon:0},
+ pacific:{name:'Tropical Pacific',lat:0,lon:-150}
+};
+
+const pairSets={arctic:['arctic','eurasia'],amazon:['amazon','monsoon'],antarctic:['antarctic','pacific']};
+document.querySelectorAll('.preset-pair').forEach(b=>b.addEventListener('click',()=>{
+ const pair=pairSets[b.dataset.pair];$('compareA').value=pair[0];$('compareB').value=pair[1];
+}));
+function regressionPerDecade(points){
+ const n=points.length;if(n<3)return null;
+ const mx=points.reduce((s,p)=>s+p.year,0)/n,my=points.reduce((s,p)=>s+p.value,0)/n;
+ let num=0,den=0;for(const p of points){num+=(p.year-mx)*(p.value-my);den+=(p.year-mx)**2}
+ return den?num/den*10:0;
+}
+function drawCompareChart(id,points,color){
+ const c=$(id),ctx=c.getContext('2d'),w=c.clientWidth||420,h=180,dpr=window.devicePixelRatio||1;
+ c.width=w*dpr;c.height=h*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
+ const vals=points.map(p=>p.value),min=Math.min(...vals),max=Math.max(...vals),pad={l:40,r:10,t:14,b:25},cw=w-pad.l-pad.r,ch=h-pad.t-pad.b;
+ ctx.font='10px system-ui';ctx.lineWidth=1;ctx.strokeStyle='#29445a';ctx.fillStyle='#91a9bf';
+ for(let i=0;i<4;i++){const y=pad.t+ch*i/3;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke();ctx.fillText((max-(max-min)*i/3).toFixed(1),3,y+3)}
+ const x=i=>pad.l+cw*i/Math.max(1,vals.length-1),y=v=>pad.t+ch-(v-min)/(max-min||1)*ch;
+ ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(x(i),y(p.value)):ctx.moveTo(x(i),y(p.value)));
+ ctx.strokeStyle=color;ctx.lineWidth=2.5;ctx.stroke();ctx.fillStyle='#9bb3c7';ctx.fillText(points[0].year,pad.l,h-6);ctx.fillText(points.at(-1).year,w-43,h-6);
+}
+async function fetchAnnualClimate(region,param,years){
+ const endYear=new Date().getUTCFullYear()-1,startYear=endYear-years+1;
+ const url=`https://power.larc.nasa.gov/api/temporal/monthly/point?parameters=${param}&community=RE&longitude=${region.lon}&latitude=${region.lat}&start=${startYear}01&end=${endYear}12&format=JSON`;
+ const res=await fetch(url);if(!res.ok)throw Error('NASA POWER monthly request failed ('+res.status+')');
+ const json=await res.json(),series=json.properties?.parameter?.[param];if(!series)throw Error('No monthly data returned for '+region.name);
+ const buckets={};
+ for(const [ym,v] of Object.entries(series)){if(!Number.isFinite(v)||v<=-900)continue;const yr=Number(ym.slice(0,4));(buckets[yr]??=[]).push(v)}
+ return Object.entries(buckets).map(([year,values])=>({year:Number(year),value:values.reduce((a,b)=>a+b,0)/values.length})).sort((a,b)=>a.year-b.year);
+}
+$('runCompare').onclick=async()=>{
+ const a=detectiveRegions[$('compareA').value],b=detectiveRegions[$('compareB').value],param=$('compareParam').value,years=Number($('compareYears').value);
+ if(!a||!b)return;
+ $('runCompare').disabled=true;$('compareStatus').textContent='Retrieving monthly NASA POWER records for both regions…';
+ $('compareNameA').textContent=a.name;$('compareNameB').textContent=b.name;
+ try{
+  const [pa,pb]=await Promise.all([fetchAnnualClimate(a,param,years),fetchAnnualClimate(b,param,years)]);
+  if(pa.length<3||pb.length<3)throw Error('Not enough annual records for a reliable comparison. Try another indicator or longer period.');
+  const sa=regressionPerDecade(pa),sb=regressionPerDecade(pb),unit=unitFor(param);
+  $('compareSlopeA').textContent=(sa>=0?'+':'')+sa.toFixed(2)+' '+unit+'/decade';
+  $('compareSlopeB').textContent=(sb>=0?'+':'')+sb.toFixed(2)+' '+unit+'/decade';
+  $('compareDetailA').textContent=`Annual means · ${pa[0].year}–${pa.at(-1).year} · ${pa.length} years`;
+  $('compareDetailB').textContent=`Annual means · ${pb[0].year}–${pb.at(-1).year} · ${pb.length} years`;
+  drawCompareChart('compareChartA',pa,'#5bd6e8');drawCompareChart('compareChartB',pb,'#e9bd54');
+  const gap=Math.abs(sa-sb);
+  $('compareClue').innerHTML='<b>Detective clue</b><p>'+esc(a.name)+' trend: <b>'+sa.toFixed(2)+' '+unit+'/decade</b>. '+esc(b.name)+' trend: <b>'+sb.toFixed(2)+' '+unit+'/decade</b>. The estimated trend-rate difference is '+gap.toFixed(2)+' '+unit+'/decade. These are linear trends in annual means, not a significance test or proof of causation. Check data coverage, seasonality and other drivers before drawing conclusions.</p>';
+  $('compareStatus').textContent='Comparison complete using NASA POWER monthly data. Annual means reduce the seasonal cycle; trend estimates remain sensitive to the selected time window.';
+ }catch(err){$('compareStatus').textContent='Comparison unavailable: '+err.message+'. Try again later or choose a different indicator.'}
+ finally{$('runCompare').disabled=false}
+};
+
+document.querySelectorAll('.region-btn').forEach(b=>b.addEventListener('click',()=>{if(!map||!window.L)return;const lat=Number(b.dataset.lat),lon=Number(b.dataset.lon),zoom=Number(b.dataset.zoom);map.setView([lat,lon],zoom);$('lat').value=lat;$('lon').value=lon;$('locName').value=b.textContent.trim();$('kRegion').textContent=b.textContent.trim();if(window.placeMarker)map.removeLayer(window.placeMarker);window.placeMarker=L.marker([lat,lon]).addTo(map).bindPopup(esc(b.textContent.trim())).openPopup();$('trendStatus').textContent='Region selected. Click Analyse region to load NASA POWER data.';}));
+document.querySelectorAll('.topic-card').forEach(card=>{const btn=card.querySelector('.topic-go');if(btn)btn.addEventListener('click',()=>{const layer=card.dataset.layer;if(layer){$('satLayer').value=layer;applySatelliteLayer();document.querySelector('#monitor').scrollIntoView({behavior:'smooth'});}})});
+$('downloadReport').onclick=()=>{
+ if(!trendRows.length){alert('Load a regional analysis first.');return}
+ const report={project:'ECO EYE',notice:'Independent student prototype; not an official NASA product.',source:'NASA POWER daily point API',metadata:trendMeta,observations:trendRows,analysis:$('insights').innerText,comparison:$('comparisonText').innerText};
+ const blob=new Blob([JSON.stringify(report,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ecoeye-investigation-report.json';a.click();URL.revokeObjectURL(a.href);
+};
+window.addEventListener('resize',()=>{if(trendRows.length)drawChart(trendRows,trendMeta?.param)});
+try{
+ if(window.L){
+  initMap();
+  setTimeout(()=>map && map.invalidateSize(),250);
+  window.addEventListener('load',()=>setTimeout(()=>map && map.invalidateSize(),300));
+ }else{
+  $('map').innerHTML='<div style="padding:24px;color:#e8f3ff">The interactive map library could not load. Check your internet connection or open this page in a browser that allows external scripts. You can still use NASA Worldview: <a href="https://worldview.earthdata.nasa.gov/" target="_blank" rel="noopener" style="color:#5bd6e8">Open NASA Worldview ↗</a></div>';
+  $('placeStatus').textContent='Map library unavailable — check connection';
+ }
+}catch(mapError){
+ console.error('Map initialization failed:',mapError);
+ $('map').innerHTML='<div style="padding:24px;color:#e8f3ff">Map initialization failed: '+esc(mapError.message)+'. Reload the page or open NASA Worldview.</div>';
+ $('placeStatus').textContent='Map initialization failed';
+}
+loadEvents();$('footerTime').textContent=' · Session '+new Date().toLocaleString();
+setInterval(loadEvents,15*60*1000); // refresh event observations every 15 minutes while this page remains open
+</script>
+</body></html>
